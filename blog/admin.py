@@ -25,7 +25,8 @@ class BlogPageGalleryImageInline(admin.TabularInline):
 class BlogCommentInline(admin.TabularInline):
     model = BlogComment
     extra = 0
-    fields = ("author_name", "author_email", "comment", "is_approved", "created_at")
+    fields = ("author_name", "author_email",
+              "comment", "is_approved", "created_at")
     readonly_fields = ("created_at",)
 
 
@@ -43,7 +44,8 @@ class BlogCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(BlogComment)
 class BlogCommentAdmin(admin.ModelAdmin):
-    list_display = ("author_name", "page", "author_email", "created_at", "is_approved")
+    list_display = ("author_name", "page", "author_email",
+                    "created_at", "is_approved")
     list_filter = ("is_approved", "created_at")
     search_fields = ("author_name", "author_email", "comment", "page__title")
     actions = ["approve_comments", "unapprove_comments"]
@@ -62,9 +64,11 @@ class BlogCommentAdmin(admin.ModelAdmin):
 
 @admin.register(BlogPage)
 class BlogPageAdmin(admin.ModelAdmin):
-    list_display = ("title", "category", "author", "date", "live", "reading_time_display", "first_published_at")
+    list_display = ("title", "category", "author", "date", "live",
+                    "reading_time_display", "first_published_at")
     list_filter = ("category", "live", "date", "author")
-    search_fields = ("title", "intro", "author__username", "author__first_name", "author__last_name")
+    search_fields = ("title", "intro", "author__username",
+                     "author__first_name", "author__last_name")
     date_hierarchy = "date"
     autocomplete_fields = ["category"]
     inlines = [
@@ -72,7 +76,8 @@ class BlogPageAdmin(admin.ModelAdmin):
         BlogPageGalleryImageInline,
         BlogCommentInline,
     ]
-    readonly_fields = ("first_published_at", "last_published_at", "latest_revision_created_at")
+    readonly_fields = ("first_published_at",
+                       "last_published_at", "latest_revision_created_at")
 
     def reading_time_display(self, obj):
         return f"{obj.reading_time} min"
@@ -84,7 +89,8 @@ class BlogIndexPageAdmin(admin.ModelAdmin):
     list_display = ("title", "live", "first_published_at", "last_published_at")
     search_fields = ("title",)
     list_filter = ("live",)
-    readonly_fields = ("first_published_at", "last_published_at", "latest_revision_created_at")
+    readonly_fields = ("first_published_at",
+                       "last_published_at", "latest_revision_created_at")
 
 
 @admin.register(BlogPageDocumentAttachment)

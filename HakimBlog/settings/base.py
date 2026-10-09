@@ -24,7 +24,8 @@ BASE_DIR = PROJECT_DIR.parent
 # Application definition
 
 INSTALLED_APPS = [
-    "jazzmin",
+    "admin_interface",
+    "colorfield",
     "blog",
     "home",
     "search",
@@ -50,9 +51,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
+X_FRAME_OPTIONS = "SAMEORIGIN"
+SILENCED_SYSTEM_CHECKS = ["security.W019"]
+
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -186,102 +192,5 @@ WAGTAILDOCS_EXTENSIONS = ['csv', 'docx', 'key',
 # Maximum upload size for documents in bytes.
 WAGTAILDOCS_MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
-
-# ==========================================
-# Jazzmin Admin Theme Configuration
-# ==========================================
-
-JAZZMIN_SETTINGS = {
-    "site_title": "HakimBlog Admin",
-    "site_header": "HakimBlog",
-    "site_brand": "HakimBlog",
-    "site_logo": "images/logo.png",
-    "login_logo": "images/logo.png",
-    "site_logo_classes": "img-circle",
-    "site_icon": "images/logo.png",
-    "welcome_sign": "Welcome to HakimBlog Control Panel",
-    "copyright": "HakimBlog",
-    "search_model": ["blog.BlogPage", "blog.BlogCategory", "auth.User"],
-    "user_avatar": None,
-    
-    # Navigation & Links
-    "topmenu_links": [
-        {"name": "View Site", "url": "/", "permissions": ["auth.view_user"]},
-        {"name": "Wagtail CMS", "url": "/admin/", "permissions": ["auth.view_user"]},
-    ],
-    
-    "usermenu_links": [
-        {"name": "Wagtail Admin", "url": "/admin/", "icon": "fas fa-feather-alt"},
-    ],
-    
-    "show_sidebar": True,
-    "navigation_expanded": True,
-    "hide_apps": [],
-    "hide_models": [],
-    
-    # Custom Icons for Models (FontAwesome)
-    "icons": {
-        "auth": "fas fa-users-cog",
-        "auth.user": "fas fa-user",
-        "auth.Group": "fas fa-users",
-        "blog.BlogPage": "fas fa-newspaper",
-        "blog.BlogCategory": "fas fa-folder-open",
-        "blog.BlogComment": "fas fa-comments",
-        "blog.BlogIndexPage": "fas fa-archive",
-        "blog.BlogPageDocumentAttachment": "fas fa-paperclip",
-        "blog.BlogPageGalleryImage": "fas fa-images",
-        "blog.BlogPageTag": "fas fa-tags",
-        "home.HomePage": "fas fa-home",
-        "taggit.Tag": "fas fa-tag",
-        "wagtailimages.Image": "fas fa-photo-video",
-        "wagtaildocs.Document": "fas fa-file-alt",
-    },
-    "default_icon_parents": "fas fa-chevron-circle-right",
-    "default_icon_children": "fas fa-circle",
-    
-    "related_modal_active": True,
-    "custom_css": "css/jazzmin_custom.css",
-    "custom_js": None,
-    "use_google_fonts_cdn": True,
-    "show_ui_builder": True,
-    "show_theme_chooser": True,
-    "changeform_format": "horizontal_tabs",
-    "changeform_format_overrides": {
-        "auth.user": "collapsible",
-        "auth.group": "vertical_tabs",
-    },
-}
-
-JAZZMIN_UI_TWEAKS = {
-    "navbar_small_text": False,
-    "footer_small_text": False,
-    "body_small_text": False,
-    "brand_small_text": False,
-    "brand_colour": False,
-    "accent": "accent-primary",
-    "navbar": "navbar-white navbar-light",
-    "no_navbar_border": False,
-    "navbar_fixed": False,
-    "layout_boxed": False,
-    "footer_fixed": False,
-    "sidebar_fixed": True,
-    "sidebar": "sidebar-dark-primary",
-    "sidebar_nav_small_text": False,
-    "sidebar_disable_expand": False,
-    "sidebar_nav_child_indent": True,
-    "sidebar_nav_compact_style": False,
-    "sidebar_nav_legacy_style": False,
-    "sidebar_nav_flat_style": False,
-    "theme": "default",
-    "default_theme_mode": "light",
-    "button_classes": {
-        "primary": "btn-primary",
-        "secondary": "btn-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success",
-    },
-}
 
 

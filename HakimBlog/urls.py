@@ -9,6 +9,11 @@ from wagtail.documents import urls as wagtaildocs_urls
 from search import views as search_views
 from blog import views as blog_views
 
+# Customize Django Admin Branding
+admin.site.site_header = "HakimBlog Administration"
+admin.site.site_title = "HakimBlog Admin"
+admin.site.index_title = "Site Management & Content Overview"
+
 urlpatterns = [
     path("django-admin/", admin.site.urls),
     path("admin/", include(wagtailadmin_urls)),
