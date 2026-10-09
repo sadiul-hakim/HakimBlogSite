@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_class %}template-auth-page pub-auth{% endblock %}
+
+{% block title %}Join HakimBlog - Create Free Account{% endblock %}
+
+{% block content %}
+<div class="auth-page-wrapper">
+    <div class="auth-card-container auth-card-wide">
+        <div class="auth-card-header">
+            <a href="/" class="auth-brand-logo" aria-label="HakimBlog Home">
+                <img src="{% static 'images/logo.png' %}" alt="HakimBlog Logo" class="auth-logo-img">
+                <span class="auth-brand-text">Hakim<span class="logo-highlight">Blog</span></span>
+            </a>
+            <h1 class="auth-heading">Join the Developer Community</h1>
+            <p class="auth-subtext">Create a free account to participate in tutorials, ask questions, and download resources.</p>
+        </div>
+
+        <div class="auth-main-card">
+            {% if form.non_field_errors %}
+            <div class="auth-error-alert">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <div>
+                    {% for error in form.non_field_errors %}
+                    <p class="auth-error-line">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'register' %}" class="auth-form-body">
+                {% csrf_token %}
+
+                <div class="form-row-grid-2">
+                    <div class="auth-field-group">
+                        <label for="id_username" class="auth-label">Username <span class="required-star">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                        <span class="auth-field-error">{{ form.username.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="id_email" class="auth-label">Email Address <span class="required-star">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                        <span class="auth-field-error">{{ form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="auth-field-group">
+                        <label for="id_first_name" class="auth-label">First Name <span class="opt-tag">(Optional)</span></label>
+                        <div class="auth-input-wrapper">
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    <div class="auth-field-group">
+                        <label for="id_last_name" class="auth-label">Last Name <span class="opt-tag">(Optional)</span></label>
+                        <div class="auth-input-wrapper">
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-grid-2">
+                    <div class="auth-field-group">
+                        <label for="id_password" class="auth-label">Password <span class="required-star">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            {{ form.password }}
+                        </div>
+                        {% if form.password.errors %}
+                        <span class="auth-field-error">{{ form.password.errors.0 }}</span>
+                        {% else %}
+                        <span class="auth-help-text">Minimum 6 characters</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="auth-field-group">
+                        <label for="id_password_confirm" class="auth-label">Confirm Password <span class="required-star">*</span></label>
+                        <div class="auth-input-wrapper">
+                            <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            {{ form.password_confirm }}
+                        </div>
+                        {% if form.password_confirm.errors %}
+                        <span class="auth-field-error">{{ form.password_confirm.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-pub-accent btn-block auth-submit-btn">
+                    Create Free Account &rarr;
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-card-footer">
+            <p>Already have an account? <a href="{% url 'login' %}" class="auth-switch-link">Sign in here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

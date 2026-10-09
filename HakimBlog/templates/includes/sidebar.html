@@ -1,0 +1,87 @@
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div class="pub-sidebar">
+    {# 1. Search Widget #}
+    <div class="sidebar-box sidebar-search-box">
+        <h4 class="sidebar-box-title">Search Tutorials</h4>
+        <form action="{% url 'search' %}" method="get" class="side-search-form">
+            <div class="side-search-input-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" name="query" placeholder="Type keyword e.g. async, django..." class="side-search-input" required>
+            </div>
+            <button type="submit" class="btn-pub-primary btn-sm btn-block side-search-submit">Search</button>
+        </form>
+    </div>
+
+    {# 2. Author Profile Widget #}
+    <div class="sidebar-box sidebar-author-box">
+        <h4 class="sidebar-box-title">About the Author</h4>
+        <div class="side-author-body">
+            <div class="side-author-avatar">H</div>
+            <div class="side-author-details">
+                <h5 class="side-author-name">Sadiul Hakim</h5>
+                <p class="side-author-role">Software Engineer &amp; Technical Writer</p>
+                <p class="side-author-bio">
+                    Building robust backend systems with Python, Django, AI workflows, and modern cloud infrastructure.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {# 3. Categories / Tracks Directory #}
+    {% if categories %}
+    <div class="sidebar-box sidebar-categories-box">
+        <div class="sidebar-box-header">
+            <h4 class="sidebar-box-title">Categories</h4>
+            <a href="/hakim-blog/" class="side-see-all">All &rarr;</a>
+        </div>
+        <ul class="side-cat-list">
+            {% for cat in categories %}
+            <li class="side-cat-item">
+                <a href="/hakim-blog/?category={{ cat.slug }}" class="side-cat-link {% if selected_category and selected_category.slug == cat.slug %}active{% endif %}">
+                    <span class="side-cat-name">{{ cat.name }}</span>
+                    <span class="side-cat-badge">{{ cat.blog_posts.live.count }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# 4. Recent Tutorials List #}
+    {% if recent_posts %}
+    <div class="sidebar-box sidebar-recent-box">
+        <h4 class="sidebar-box-title">Recent Tutorials</h4>
+        <ul class="side-posts-list">
+            {% for rpost in recent_posts %}
+            <li class="side-post-row">
+                {% if rpost.header_image %}
+                <a href="{% pageurl rpost %}" class="side-post-thumb-link" tabindex="-1">
+                    {% image rpost.header_image fill-70x70 as s_thumb %}
+                    <img src="{{ s_thumb.url }}" width="{{ s_thumb.width }}" height="{{ s_thumb.height }}" alt="{{ rpost.title }}" class="side-post-thumb" loading="lazy">
+                </a>
+                {% endif %}
+                <div class="side-post-text">
+                    <a href="{% pageurl rpost %}" class="side-post-title">{{ rpost.title }}</a>
+                    <span class="side-post-date">{{ rpost.date|date:"M d, Y" }} &bull; {{ rpost.reading_time }}m read</span>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {# 5. Tags Cloud #}
+    {% if tags %}
+    <div class="sidebar-box sidebar-tags-box">
+        <h4 class="sidebar-box-title">Popular Tags</h4>
+        <div class="side-tags-cloud">
+            {% for tag in tags %}
+            <a href="/hakim-blog/?tag={{ tag.slug }}" class="side-tag-pill {% if selected_tag == tag.slug %}active{% endif %}">
+                #{{ tag.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>

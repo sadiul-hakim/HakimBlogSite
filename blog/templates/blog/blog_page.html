@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-blogpage pub-article-page{% endblock %}
+
+{% block title %}{{ page.title }} - HakimBlog{% endblock %}
+
+{% block content %}
+<div class="pub-container pub-article-container">
+
+    {# Topic / Breadcrumb Sub-Header (GeeksforGeeks Style) #}
+    <div class="pub-article-subnav">
+        <nav class="pub-breadcrumbs" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <span class="bc-arrow">&rsaquo;</span>
+            <a href="{{ page.get_parent.url }}">Articles</a>
+            {% if page.category %}
+            <span class="bc-arrow">&rsaquo;</span>
+            <a href="{{ page.get_parent.url }}?category={{ page.category.slug }}" class="bc-category-link">{{ page.category.name }}</a>
+            {% endif %}
+            <span class="bc-arrow">&rsaquo;</span>
+            <span class="bc-title">{{ page.title|truncatechars:45 }}</span>
+        </nav>
+    </div>
+
+    {# 2-Column Article Layout: Left Reading Content + Right Sticky Tutorial Sidebar #}
+    <div class="article-layout-grid">
+        <main class="article-content-col">
+            <article class="pub-article-main">
+                {# Article Header #}
+                <header class="article-masthead">
+                    {% if page.category %}
+                    <div class="article-cat-wrap">
+                        <a href="{{ page.get_parent.url }}?category={{ page.category.slug }}" class="article-cat-badge">
+                            {{ page.category.name }}
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <h1 class="article-main-title">{{ page.title }}</h1>
+
+                    <div class="article-meta-bar">
+                        <div class="author-meta-chunk">
+                            <span class="author-badge-avatar">{{ page.display_author|slice:":1"|upper }}</span>
+                            <span class="author-name">by <strong>{{ page.display_author }}</strong></span>
+                        </div>
+                        <span class="meta-pipe">|</span>
+                        <div class="date-meta-chunk">
+                            <span class="meta-label">Published:</span>
+                            <time datetime="{{ page.date|date:'Y-m-d' }}">{{ page.date|date:"M d, Y" }}</time>
+                        </div>
+                        <span class="meta-pipe">|</span>
+                        <span class="reading-meta-chunk">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 3px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            {{ page.reading_time }} min read
+                        </span>
+                        <span class="meta-pipe">|</span>
+                        <a href="#comments" class="comments-meta-chunk">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 3px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            {{ approved_comments.count }} comment{{ approved_comments.count|pluralize }}
+                        </a>
+                    </div>
+                </header>
+
+                {# Featured Illustration / Hero Image #}
+                {% if page.header_image %}
+                <div class="article-hero-wrap">
+                    {% image page.header_image fill-900x480 as feat_img %}
+                    <img src="{{ feat_img.url }}" width="{{ feat_img.width }}" height="{{ feat_img.height }}" alt="{{ page.title }}" class="article-hero-img">
+                </div>
+                {% endif %}
+
+                {# Intro Lead Text #}
+                {% if page.intro %}
+                <div class="article-lead-box">
+                    <p>{{ page.intro }}</p>
+                </div>
+                {% endif %}
+
+                {# Article Body StreamField #}
+                <div class="article-stream-body pub-typography">
+                    {% for block in page.body %}
+                        {% if block.block_type == 'heading' %}
+                            <h2 class="stream-heading">{{ block.value }}</h2>
+                        {% elif block.block_type == 'paragraph' %}
+                            <div class="stream-paragraph">{{ block.value|richtext }}</div>
+                        {% else %}
+                            {% include_block block %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {# Downloadable Documents / Files #}
+                {% if page.attachments.all %}
+                <div class="article-downloads-card">
+                    <h3 class="card-heading">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                        Project Resources &amp; Downloads ({{ page.attachments.count }})
+                    </h3>
+                    <ul class="downloads-list">
+                        {% for item in page.attachments.all %}
+                        <li class="download-item-row">
+                            <div class="download-info">
+                                <span class="download-filename">{{ item.title|default:item.document.title }}</span>
+                                {% if item.description %}<span class="download-desc">{{ item.description }}</span>{% endif %}
+                                <span class="download-size">({{ item.document.file_extension|upper }} &bull; {{ item.document.file.size|filesizeformat }})</span>
+                            </div>
+                            <a href="{{ item.document.url }}" class="btn-pub-sm btn-pub-primary" download target="_blank">
+                                Download
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                {# Photo Gallery #}
+                {% if page.gallery_images.all %}
+                <div class="article-gallery-block">
+                    <h3 class="card-heading">Screenshots &amp; Diagrams</h3>
+                    <div class="gallery-photo-grid">
+                        {% for g_item in page.gallery_images.all %}
+                        <figure class="gallery-photo-card">
+                            {% image g_item.image fill-600x400 as g_img %}
+                            <img src="{{ g_img.url }}" width="{{ g_img.width }}" height="{{ g_img.height }}" alt="{{ g_item.caption|default:page.title }}" class="gallery-photo-img" loading="lazy">
+                            {% if g_item.caption %}
+                            <figcaption class="gallery-photo-caption">{{ g_item.caption }}</figcaption>
+                            {% endif %}
+                        </figure>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Tags #}
+                {% if page.tags.all %}
+                <div class="article-tags-wrap">
+                    <span class="tags-heading">Tags:</span>
+                    <div class="tags-chips-list">
+                        {% for tag in page.tags.all %}
+                        <a href="{{ page.get_parent.url }}?tag={{ tag.slug }}" class="pub-tag-chip">#{{ tag.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Author Bio Card #}
+                <div class="pub-author-bio-card">
+                    <div class="author-bio-avatar">{{ page.display_author|slice:":1"|upper }}</div>
+                    <div class="author-bio-details">
+                        <span class="author-bio-label">ABOUT THE AUTHOR</span>
+                        <h4 class="author-bio-name">{{ page.display_author }}</h4>
+                        <p class="author-bio-text">
+                            Software engineer and technical writer covering Python internals, Django web development, database optimization, and modern software architectures.
+                        </p>
+                    </div>
+                </div>
+
+                {# Prev / Next Article Cards #}
+                {% if prev_post or next_post %}
+                <div class="article-adjacent-nav">
+                    <div class="adjacent-col adjacent-prev">
+                        {% if prev_post %}
+                        <span class="adjacent-direction">&larr; Previous Article</span>
+                        <a href="{% pageurl prev_post %}" class="adjacent-title">{{ prev_post.title }}</a>
+                        {% endif %}
+                    </div>
+                    <div class="adjacent-col adjacent-next">
+                        {% if next_post %}
+                        <span class="adjacent-direction">Next Article &rarr;</span>
+                        <a href="{% pageurl next_post %}" class="adjacent-title">{{ next_post.title }}</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Related Articles (Baeldung style) #}
+                {% if related_posts %}
+                <div class="article-related-box">
+                    <h3 class="related-box-title">Related Tutorials in {{ page.category.name|default:"This Category" }}</h3>
+                    <div class="related-cards-grid">
+                        {% for rel in related_posts %}
+                        <a href="{% pageurl rel %}" class="related-card-item">
+                            <span class="related-date">{{ rel.date|date:"M d, Y" }}</span>
+                            <h4 class="related-title">{{ rel.title }}</h4>
+                            <p class="related-desc">{{ rel.intro|truncatechars:95 }}</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {# Discussion & Comments #}
+                <section class="pub-comments-section" id="comments">
+                    <div class="comments-head">
+                        <h3 class="comments-title">Discussion &amp; Questions ({{ approved_comments.count }})</h3>
+                        <p class="comments-subtitle">Have a question or note about this tutorial? Leave a comment below.</p>
+                    </div>
+
+                    {# Comment Form #}
+                    <div class="pub-comment-form-wrap">
+                        <h4 class="form-title">Leave a Comment</h4>
+                        <form action="{% url 'add_comment' page.id %}" method="post" class="pub-comment-form">
+                            {% csrf_token %}
+                            <div class="form-grid-2">
+                                <div class="form-field">
+                                    <label for="id_author_name" class="field-label">Name <span class="required-star">*</span></label>
+                                    <input type="text" name="author_name" id="id_author_name" class="pub-input" placeholder="Your name" value="{{ user_initial_name }}" required>
+                                </div>
+                                <div class="form-field">
+                                    <label for="id_author_email" class="field-label">Email <span class="optional-note">(Optional, not displayed)</span></label>
+                                    <input type="email" name="author_email" id="id_author_email" class="pub-input" placeholder="you@example.com" value="{{ user_initial_email }}">
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label for="id_comment" class="field-label">Comment <span class="required-star">*</span></label>
+                                <textarea name="comment" id="id_comment" rows="4" class="pub-input pub-textarea" placeholder="Write your question, feedback, or thoughts..." required></textarea>
+                            </div>
+                            <div class="form-submit-bar">
+                                <button type="submit" class="btn-pub-primary">Post Comment</button>
+                                {% if not request.user.is_authenticated %}
+                                <span class="guest-note">Posting as guest. Or <a href="{% url 'login' %}?next={{ page.url }}#comments">sign in</a>.</span>
+                                {% endif %}
+                            </div>
+                        </form>
+                    </div>
+
+                    {# Approved Comments Stream #}
+                    <div class="pub-comments-list">
+                        {% if approved_comments %}
+                            {% for c in approved_comments %}
+                            <div class="pub-comment-card">
+                                <div class="comment-avatar">{{ c.author_initials }}</div>
+                                <div class="comment-main">
+                                    <div class="comment-header-row">
+                                        <span class="comment-name">{{ c.author_name }}</span>
+                                        {% if c.user and c.user.is_staff %}
+                                        <span class="staff-badge">Author</span>
+                                        {% endif %}
+                                        <time class="comment-date" datetime="{{ c.created_at|date:'c' }}">
+                                            {{ c.created_at|date:"M d, Y \a\\t g:i A" }}
+                                        </time>
+                                    </div>
+                                    <div class="comment-body-text">
+                                        {{ c.comment|linebreaks }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="pub-no-comments">
+                                <p>No comments yet on this tutorial. Be the first to start the discussion!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </section>
+            </article>
+        </main>
+
+        {# Sticky Tutorial Sidebar #}
+        <aside class="article-sidebar-col">
+            {% include 'includes/sidebar.html' %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

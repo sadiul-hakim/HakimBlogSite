@@ -1,0 +1,257 @@
+{% load static wagtailcore_tags wagtailuserbar %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <title>
+        {% block title %}
+        {% if page.seo_title %}{{ page.seo_title }}{% elif page.title %}{{ page.title }}{% else %}HakimBlog{% endif %}
+        {% endblock %}
+        {% block title_suffix %}
+        {% wagtail_site as current_site %}
+        - {% if current_site and current_site.site_name %}{{ current_site.site_name }}{% else %}HakimBlog{% endif %}
+        {% endblock %}
+    </title>
+    
+    <meta name="description" content="{% if page.search_description %}{{ page.search_description }}{% else %}Technical tutorials, programming guides, and architecture insights on Python, Backend Systems, AI, and Cloud.{% endif %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" id="metaThemeColor" />
+
+    {# Early theme detection to prevent flash of incorrect theme (FOUC) #}
+    <script>
+        (function() {
+            try {
+                var storedTheme = localStorage.getItem('hakimblog-theme') || 'system';
+                var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var effectiveTheme = storedTheme === 'system' ? (prefersDark ? 'dark' : 'light') : storedTheme;
+                document.documentElement.setAttribute('data-theme', effectiveTheme);
+                document.documentElement.setAttribute('data-theme-setting', storedTheme);
+            } catch (e) {}
+        })();
+    </script>
+
+    {# Force preview links to open in a new tab #}
+    {% if request.in_preview_panel %}
+    <base target="_blank">
+    {% endif %}
+
+    {# Google Fonts - Inter & Plus Jakarta Sans & JetBrains Mono #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+    {# PrismJS syntax highlighting CSS #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" id="prismTheme" />
+
+    {# Main Stylesheet #}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/HakimBlog.css' %}?v=3">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+    {% wagtailuserbar %}
+
+    {# Top Brand Header Bar (Real Python / Baeldung style) #}
+    <header class="pub-header" id="siteHeader">
+        <div class="pub-header-top">
+            <div class="pub-container header-top-flex">
+                {# Logo #}
+                <div class="header-brand-wrap">
+                    <a href="/" class="pub-logo" aria-label="HakimBlog Home">
+                        <img src="{% static 'images/logo.png' %}" alt="HakimBlog Logo" class="pub-logo-img">
+                        <div class="pub-logo-text-group">
+                            <span class="pub-logo-text">Hakim<span class="logo-highlight">Blog</span></span>
+                        </div>
+                    </a>
+                </div>
+
+                {# Primary Navigation #}
+                <nav class="pub-main-nav" id="headerNav" aria-label="Main Navigation">
+                    <a href="/" class="pub-nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+                    <a href="/hakim-blog/" class="pub-nav-link {% if '/hakim-blog' in request.path and not request.GET.category and not page.category %}active{% endif %}">Articles</a>
+                    <a href="/hakim-blog/?category=python-django" class="pub-nav-link {% if request.GET.category == 'python-django' or page.category.slug == 'python-django' %}active{% endif %}">Python</a>
+                    <a href="/hakim-blog/?category=backend-architecture" class="pub-nav-link {% if request.GET.category == 'backend-architecture' or page.category.slug == 'backend-architecture' %}active{% endif %}">Backend</a>
+                    <a href="/hakim-blog/?category=artificial-intelligence" class="pub-nav-link {% if request.GET.category == 'artificial-intelligence' or page.category.slug == 'artificial-intelligence' %}active{% endif %}">AI &amp; ML</a>
+                    <a href="/search/" class="pub-nav-link {% if '/search' in request.path %}active{% endif %}">Search</a>
+                </nav>
+
+                {# Header Right: Search Bar & Auth #}
+                <div class="pub-header-right">
+                    <form action="{% url 'search' %}" method="get" class="pub-header-search">
+                        <svg class="search-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" name="query" placeholder="Search tutorials..." class="pub-header-input" aria-label="Search tutorials">
+                    </form>
+
+                    {# Theme Chooser Dropdown #}
+                    <div class="pub-theme-dropdown-wrap" id="themeDropdownWrap">
+                        <button class="pub-theme-btn" id="themeToggleBtn" type="button" aria-label="Theme Chooser" aria-expanded="false" title="Choose theme">
+                            <svg class="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                            <svg class="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                            <svg class="theme-icon-sepia" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            <svg class="theme-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        
+                        <div class="pub-theme-menu" id="themeMenu" role="menu" aria-label="Select Theme">
+                            <div class="theme-menu-header">Select Theme</div>
+                            <button type="button" class="theme-menu-item" data-theme-val="light" role="menuitem">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+                                <span>Light (Default)</span>
+                                <span class="theme-check-icon">✓</span>
+                            </button>
+                            <button type="button" class="theme-menu-item" data-theme-val="dark" role="menuitem">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                <span>Dark (Navy)</span>
+                                <span class="theme-check-icon">✓</span>
+                            </button>
+                            <button type="button" class="theme-menu-item" data-theme-val="sepia" role="menuitem">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                                <span>Sepia (Reading)</span>
+                                <span class="theme-check-icon">✓</span>
+                            </button>
+                            <button type="button" class="theme-menu-item" data-theme-val="system" role="menuitem">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                                <span>System (Auto)</span>
+                                <span class="theme-check-icon">✓</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {# User Auth Links #}
+                    {% if request.user.is_authenticated %}
+                    <div class="pub-user-badge">
+                        <span class="user-avatar-small">{{ request.user.username|slice:":1"|upper }}</span>
+                        {% if request.user.is_staff %}
+                        <a href="/admin/" class="btn-pub-sm btn-pub-admin" title="Wagtail Admin">Admin</a>
+                        {% endif %}
+                        <a href="{% url 'logout' %}" class="btn-pub-sm btn-pub-ghost">Sign Out</a>
+                    </div>
+                    {% else %}
+                    <div class="pub-auth-actions">
+                        <a href="{% url 'login' %}" class="btn-pub-sm btn-pub-ghost">Sign In</a>
+                        <a href="{% url 'register' %}" class="btn-pub-sm btn-pub-primary">Join</a>
+                    </div>
+                    {% endif %}
+
+                    {# Mobile Toggle #}
+                    <button class="pub-mobile-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu" aria-expanded="false">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        {# Secondary Topic Sub-nav Bar (GeeksforGeeks / Baeldung style) #}
+        <div class="pub-topic-bar" id="pubTopicBar">
+            <div class="pub-container topic-bar-flex">
+                <span class="topic-bar-label">Topics:</span>
+                
+                <div class="topic-scroll-container">
+                    <button class="topic-nav-btn topic-prev-btn" id="topicScrollPrev" aria-label="Scroll topics left" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+
+                    <div class="topic-bar-links" id="topicBarLinks">
+                        <a href="/hakim-blog/?category=python-django" class="topic-chip {% if request.GET.category == 'python-django' or page.category.slug == 'python-django' %}active{% endif %}">Python &amp; Django</a>
+                        <a href="/hakim-blog/?category=backend-architecture" class="topic-chip {% if request.GET.category == 'backend-architecture' or page.category.slug == 'backend-architecture' %}active{% endif %}">Backend Architecture</a>
+                        <a href="/hakim-blog/?category=artificial-intelligence" class="topic-chip {% if request.GET.category == 'artificial-intelligence' or page.category.slug == 'artificial-intelligence' %}active{% endif %}">AI &amp; Machine Learning</a>
+                        <a href="/hakim-blog/?category=cloud-devops" class="topic-chip {% if request.GET.category == 'cloud-devops' or page.category.slug == 'cloud-devops' %}active{% endif %}">Cloud &amp; DevOps</a>
+                        <a href="/hakim-blog/?category=database-systems" class="topic-chip {% if request.GET.category == 'database-systems' or page.category.slug == 'database-systems' %}active{% endif %}">Database &amp; SQL</a>
+                        <a href="/hakim-blog/?tag=wagtail" class="topic-chip {% if selected_tag == 'wagtail' or request.GET.tag == 'wagtail' %}active{% endif %}">Wagtail CMS</a>
+                        <a href="/hakim-blog/?tag=docker" class="topic-chip {% if selected_tag == 'docker' or request.GET.tag == 'docker' %}active{% endif %}">Docker</a>
+                        <a href="/hakim-blog/?tag=async" class="topic-chip {% if selected_tag == 'async' or request.GET.tag == 'async' %}active{% endif %}">Async &amp; Concurrency</a>
+                        <a href="/hakim-blog/" class="topic-chip topic-all-chip">All Articles &rarr;</a>
+                    </div>
+
+                    <button class="topic-nav-btn topic-next-btn" id="topicScrollNext" aria-label="Scroll topics right" type="button">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {# Flash Messages Banner #}
+    {% if messages %}
+    <div class="pub-messages-container">
+        {% for message in messages %}
+        <div class="pub-alert alert-{{ message.tags|default:'info' }}" role="alert">
+            <span>{{ message }}</span>
+            <button class="pub-alert-close" type="button" onclick="this.parentElement.remove()" aria-label="Close message">×</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Main Page Content #}
+    <main class="pub-main-wrapper" id="mainContent">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# Publication Footer #}
+    <footer class="pub-footer">
+        <div class="pub-container">
+            <div class="pub-footer-grid">
+                <div class="footer-brand-col">
+                    <div class="footer-logo">
+                        <img src="{% static 'images/logo.png' %}" alt="HakimBlog" style="width: 32px; height: 32px; border-radius: 6px; vertical-align: middle; margin-right: 6px;">
+                        <span class="pub-logo-text">Hakim<span class="logo-highlight">Blog</span></span>
+                    </div>
+                    <p class="footer-tagline">
+                        A personal engineering blog covering Python, backend systems, database architecture, and practical software design.
+                    </p>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-col-title">Tutorials &amp; Tracks</h4>
+                    <ul class="footer-nav-list">
+                        <li><a href="/hakim-blog/?category=python-django">Python &amp; Django</a></li>
+                        <li><a href="/hakim-blog/?category=backend-architecture">Backend Architecture</a></li>
+                        <li><a href="/hakim-blog/?category=artificial-intelligence">AI &amp; Machine Learning</a></li>
+                        <li><a href="/hakim-blog/?category=cloud-devops">Cloud &amp; DevOps</a></li>
+                        <li><a href="/hakim-blog/?category=database-systems">Database Systems</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-col-title">Navigation</h4>
+                    <ul class="footer-nav-list">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/hakim-blog/">All Articles</a></li>
+                        <li><a href="{% url 'search' %}">Search Archive</a></li>
+                        {% if request.user.is_authenticated %}
+                        <li><a href="/admin/">Admin Dashboard</a></li>
+                        <li><a href="{% url 'logout' %}">Sign Out</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}">Sign In</a></li>
+                        <li><a href="{% url 'register' %}">Create Account</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="footer-nav-col">
+                    <h4 class="footer-col-title">About HakimBlog</h4>
+                    <p class="footer-about-text">
+                        Authored and maintained by <strong>Sadiul Hakim</strong>. Built with Django and Wagtail CMS.
+                    </p>
+                </div>
+            </div>
+
+            <div class="pub-footer-bottom">
+                <p>&copy; 2026 HakimBlog. All rights reserved.</p>
+                <p>Designed for developers, engineers &amp; learners.</p>
+            </div>
+        </div>
+    </footer>
+
+    {# PrismJS Code Highlighting Scripts #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    {# Main Global Javascript #}
+    <script type="text/javascript" src="{% static 'js/HakimBlog.js' %}?v=3"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

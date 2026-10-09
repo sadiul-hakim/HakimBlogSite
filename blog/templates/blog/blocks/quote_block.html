@@ -1,0 +1,12 @@
+<blockquote class="editorial-quote">
+  <div class="quote-mark">“</div>
+  <p class="quote-text">{{ value.quote }}</p>
+  {% if value.author %}
+  <footer class="quote-footer">
+    <cite class="quote-author">— {{ value.author }}</cite>
+    {% if value.source_title %}
+    <span class="quote-source">, {{ value.source_title }}</span>
+    {% endif %}
+  </footer>
+  {% endif %}
+</blockquote>

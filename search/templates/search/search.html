@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-searchresults pub-search-page{% endblock %}
+
+{% block title %}Search Tutorials &amp; Articles - HakimBlog{% endblock %}
+
+{% block content %}
+<div class="pub-container pub-archive-container">
+    <div class="search-hero-box">
+        <span class="section-kicker">SEARCH ENGINE</span>
+        <h1 class="search-main-heading">Search Tutorials &amp; Articles</h1>
+        <p class="search-sub-heading">Search across Python, Django, Backend Systems, AI, and Cloud Architecture tutorials.</p>
+
+        <form action="{% url 'search' %}" method="get" class="search-full-form">
+            <div class="search-full-input-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" name="query" value="{{ search_query }}" placeholder="Type keywords e.g. Django, Async, Docker, SQL..." class="search-full-input" autofocus>
+                {% if search_query %}
+                <a href="{% url 'search' %}" class="search-clear-btn" title="Clear query">×</a>
+                {% endif %}
+            </div>
+            <button type="submit" class="btn-pub-primary">Search</button>
+        </form>
+    </div>
+
+    {% if search_query %}
+    <div class="search-results-header">
+        <h2>
+            {% if search_results %}
+            Found {{ search_results.paginator.count }} result{{ search_results.paginator.count|pluralize }} for <span class="query-highlight">"{{ search_query }}"</span>
+            {% else %}
+            No articles found for <span class="query-highlight">"{{ search_query }}"</span>
+            {% endif %}
+        </h2>
+    </div>
+    {% endif %}
+
+    <div class="feed-layout-grid">
+        <div class="feed-main-col">
+            {% if search_results %}
+            <div class="pub-articles-list">
+                {% for result in search_results %}
+                <article class="pub-article-row">
+                    <div class="article-row-body" style="padding-left: 0;">
+                        <div class="article-row-meta">
+                            {% if result.specific.category %}
+                            <span class="article-cat-pill">
+                                {{ result.specific.category.name }}
+                            </span>
+                            {% endif %}
+                            {% if result.specific.date %}
+                            <span class="meta-separator">&bull;</span>
+                            <time class="meta-date">{{ result.specific.date|date:"M d, Y" }}</time>
+                            {% endif %}
+                        </div>
+
+                        <h3 class="article-row-title">
+                            <a href="{% pageurl result %}">{{ result.title }}</a>
+                        </h3>
+
+                        <p class="article-row-excerpt">
+                            {% if result.search_description %}
+                            {{ result.search_description }}
+                            {% elif result.specific.intro %}
+                            {{ result.specific.intro }}
+                            {% endif %}
+                        </p>
+
+                        <div class="article-row-footer">
+                            <a href="{% pageurl result %}" class="row-read-link">
+                                Read Article &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {# Search Pagination #}
+            {% if search_results.has_other_pages %}
+            <nav class="pub-pagination-bar" aria-label="Search pagination">
+                <div class="pagination-buttons">
+                    {% if search_results.has_previous %}
+                    <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.previous_page_number }}" class="btn-pub-sm btn-pub-outline">
+                        &larr; Previous
+                    </a>
+                    {% endif %}
+
+                    <div class="pagination-num-group">
+                        {% for num in search_results.paginator.page_range %}
+                            {% if search_results.number == num %}
+                            <span class="page-num-box active">{{ num }}</span>
+                            {% elif num > search_results.number|add:'-3' and num < search_results.number|add:'3' %}
+                            <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ num }}" class="page-num-box">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if search_results.has_next %}
+                    <a href="{% url 'search' %}?query={{ search_query|urlencode }}&amp;page={{ search_results.next_page_number }}" class="btn-pub-sm btn-pub-outline">
+                        Next &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            </nav>
+            {% endif %}
+
+            {% elif search_query %}
+            <div class="pub-empty-card">
+                <h3>No matching articles</h3>
+                <p>Try searching for broader keywords like "Python", "Django", "Backend", or "Architecture".</p>
+                <a href="/hakim-blog/" class="btn-pub-primary btn-sm">Browse All Articles</a>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Sidebar Column #}
+        <aside class="feed-sidebar-col">
+            {% include 'includes/sidebar.html' %}
+        </aside>
+    </div>
+</div>
+{% endblock %}

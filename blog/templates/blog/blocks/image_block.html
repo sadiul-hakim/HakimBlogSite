@@ -1,0 +1,8 @@
+{% load wagtailimages_tags %}
+<figure class="article-image-figure">
+  {% image value.image width-1200 as img %}
+  <img src="{{ img.url }}" width="{{ img.width }}" height="{{ img.height }}" alt="{% if value.alt_text %}{{ value.alt_text }}{% elif value.caption %}{{ value.caption }}{% else %}{{ img.alt }}{% endif %}" class="article-image" loading="lazy">
+  {% if value.caption %}
+  <figcaption class="article-image-caption">{{ value.caption }}</figcaption>
+  {% endif %}
+</figure>

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-homepage pub-home{% endblock %}
+
+{% block title %}HakimBlog - Python, Backend &amp; Systems Engineering{% endblock %}
+
+{% block content %}
+<div class="pub-home-container">
+
+    {# 1. Featured Post Hero #}
+    {% if featured_post %}
+    <section class="pub-hero-section">
+        <div class="pub-container">
+            <div class="pub-hero-grid">
+                {# Left: Featured Article #}
+                <div class="hero-featured-card">
+                    {% if featured_post.header_image %}
+                    <a href="{% pageurl featured_post %}" class="hero-feat-image-wrap" tabindex="-1">
+                        {% image featured_post.header_image fill-800x420 as feat_img %}
+                        <img src="{{ feat_img.url }}" width="{{ feat_img.width }}" height="{{ feat_img.height }}" alt="{{ featured_post.title }}" class="hero-feat-img">
+                    </a>
+                    {% endif %}
+
+                    <div class="hero-feat-body">
+                        <div class="feat-meta-row">
+                            {% if featured_post.category %}
+                            <span class="feat-cat-badge">{{ featured_post.category.name }}</span>
+                            {% endif %}
+                            <span class="feat-read-time">{{ featured_post.reading_time }} min read</span>
+                        </div>
+
+                        <h1 class="hero-feat-title">
+                            <a href="{% pageurl featured_post %}">{{ featured_post.title }}</a>
+                        </h1>
+
+                        <p class="hero-feat-intro">{{ featured_post.intro }}</p>
+
+                        <div class="hero-feat-footer">
+                            <div class="feat-author-info">
+                                <span class="author-dot-avatar">{{ featured_post.display_author|slice:":1"|upper }}</span>
+                                <span class="author-name-text">by <strong>{{ featured_post.display_author }}</strong></span>
+                                <span class="meta-dot">&bull;</span>
+                                <time datetime="{{ featured_post.date|date:'Y-m-d' }}">{{ featured_post.date|date:"M d, Y" }}</time>
+                            </div>
+
+                            <a href="{% pageurl featured_post %}" class="btn-pub-primary">
+                                Read Article &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                {# Right: About & Topics Sidebar Card #}
+                <div class="hero-sidebar-card">
+                    <div class="newsletter-box-header">
+                        <span class="newsletter-sub">WELCOME TO HAKIMBLOG</span>
+                        <h3 class="newsletter-title">Personal Engineering Blog</h3>
+                        <p class="newsletter-desc">Notes, tutorials, and practical architectures across Python, Django, database indexing, and backend design.</p>
+                    </div>
+
+                    <div class="hero-quick-topics">
+                        <h4 class="quick-topics-heading">Main Categories:</h4>
+                        <ul class="quick-series-list">
+                            <li><a href="/hakim-blog/?category=python-django"><strong>Python &amp; Django</strong> — Web frameworks, ORM, and tooling</a></li>
+                            <li><a href="/hakim-blog/?category=backend-architecture"><strong>Backend Architecture</strong> — Concurrency, async, and APIs</a></li>
+                            <li><a href="/hakim-blog/?category=artificial-intelligence"><strong>AI &amp; Machine Learning</strong> — Practical applications and models</a></li>
+                            <li><a href="/hakim-blog/?category=cloud-devops"><strong>Cloud &amp; DevOps</strong> — Linux, Docker, and infrastructure</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="newsletter-action-box">
+                        <a href="/hakim-blog/" class="btn-pub-accent btn-block">
+                            Browse All {{ total_articles }} Articles &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# 2. Categories Grid #}
+    {% if categories %}
+    <section class="tracks-section">
+        <div class="pub-container">
+            <div class="section-title-wrap">
+                <span class="section-kicker">CATEGORIES</span>
+                <h2 class="section-main-heading">Explore By Topic</h2>
+                <p class="section-sub-heading">Browse articles organized by engineering domain.</p>
+            </div>
+
+            <div class="tracks-grid">
+                {% for cat in categories %}
+                <div class="track-card track-theme-{{ forloop.counter|default:1 }}">
+                    <div class="track-card-header">
+                        <h3 class="track-title" style="margin-bottom: 0;">{{ cat.name }}</h3>
+                        <span class="track-count">{{ cat.blog_posts.live.count }} article{{ cat.blog_posts.live.count|pluralize }}</span>
+                    </div>
+
+                    <p class="track-desc">{{ cat.description|default:"Tutorials, code examples, and architecture guides." }}</p>
+
+                    <a href="/hakim-blog/?category={{ cat.slug }}" class="track-cta-btn">
+                        View Articles &rarr;
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# 3. Multi-Column Topic Digest #}
+    {% if category_sections %}
+    <section class="digest-section">
+        <div class="pub-container">
+            <div class="section-title-wrap">
+                <span class="section-kicker">TOPICS</span>
+                <h2 class="section-main-heading">Featured Categories</h2>
+            </div>
+
+            <div class="digest-grid">
+                {% for section in category_sections|slice:":3" %}
+                <div class="digest-column">
+                    <div class="digest-col-header">
+                        <h3 class="digest-col-title">{{ section.category.name }}</h3>
+                        <a href="/hakim-blog/?category={{ section.category.slug }}" class="digest-col-more">All &rarr;</a>
+                    </div>
+
+                    {% if section.featured %}
+                    <div class="digest-main-card">
+                        {% if section.featured.header_image %}
+                        <a href="{% pageurl section.featured %}" class="digest-thumb-link" tabindex="-1">
+                            {% image section.featured.header_image fill-500x260 as d_img %}
+                            <img src="{{ d_img.url }}" width="{{ d_img.width }}" height="{{ d_img.height }}" alt="{{ section.featured.title }}" class="digest-thumb">
+                        </a>
+                        {% endif %}
+
+                        <div class="digest-card-content">
+                            <span class="digest-pill">LATEST</span>
+                            <h4 class="digest-card-title">
+                                <a href="{% pageurl section.featured %}">{{ section.featured.title }}</a>
+                            </h4>
+                            <p class="digest-card-intro">{{ section.featured.intro|truncatechars:120 }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if section.articles %}
+                    <ul class="digest-sub-list">
+                        {% for sub_post in section.articles %}
+                        <li class="digest-sub-item">
+                            <a href="{% pageurl sub_post %}" class="digest-sub-link">
+                                {{ sub_post.title }}
+                            </a>
+                            <span class="digest-sub-date">{{ sub_post.date|date:"M d" }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    {# 4. Latest Articles Feed + Sidebar #}
+    <section class="latest-feed-section">
+        <div class="pub-container">
+            <div class="feed-layout-grid">
+                {# Main Article Stream #}
+                <div class="feed-main-col">
+                    <div class="feed-header-bar">
+                        <h2 class="feed-section-title">Latest Articles</h2>
+                        <span class="feed-article-total">{{ total_articles }} articles</span>
+                    </div>
+
+                    {% if latest_posts %}
+                    <div class="pub-articles-list">
+                        {% for post in latest_posts %}
+                        <article class="pub-article-row">
+                            {% if post.header_image %}
+                            <div class="article-row-image">
+                                <a href="{% pageurl post %}" tabindex="-1">
+                                    {% image post.header_image fill-320x200 as row_img %}
+                                    <img src="{{ row_img.url }}" width="{{ row_img.width }}" height="{{ row_img.height }}" alt="{{ post.title }}" class="row-thumb" loading="lazy">
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            <div class="article-row-body">
+                                <div class="article-row-meta">
+                                    {% if post.category %}
+                                    <a href="/hakim-blog/?category={{ post.category.slug }}" class="article-cat-pill">
+                                        {{ post.category.name }}
+                                    </a>
+                                    {% endif %}
+                                    <span class="meta-separator">&bull;</span>
+                                    <time datetime="{{ post.date|date:'Y-m-d' }}" class="meta-date">{{ post.date|date:"M d, Y" }}</time>
+                                    <span class="meta-separator">&bull;</span>
+                                    <span class="meta-read-time">{{ post.reading_time }} min read</span>
+                                </div>
+
+                                <h3 class="article-row-title">
+                                    <a href="{% pageurl post %}">{{ post.title }}</a>
+                                </h3>
+
+                                <p class="article-row-excerpt">{{ post.intro|truncatechars:180 }}</p>
+
+                                <div class="article-row-footer">
+                                    <span class="author-byline">by <strong>{{ post.display_author }}</strong></span>
+                                    <a href="{% pageurl post %}" class="row-read-link">
+                                        Read Article &rarr;
+                                    </a>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+
+                    <div class="feed-more-wrap">
+                        <a href="/hakim-blog/" class="btn-pub-outline btn-block">
+                            View All Articles in Archive &rarr;
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Right Sidebar #}
+                <aside class="feed-sidebar-col">
+                    {% include 'includes/sidebar.html' %}
+                </aside>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

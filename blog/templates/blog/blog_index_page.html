@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load wagtailcore_tags wagtailimages_tags %}
+
+{% block body_class %}template-blogindexpage pub-archive{% endblock %}
+
+{% block title %}All Tutorials &amp; Articles - HakimBlog{% endblock %}
+
+{% block content %}
+<div class="pub-container pub-archive-container">
+
+    {# Archive Header #}
+    <div class="archive-title-banner">
+        <div class="archive-header-text">
+            <span class="section-kicker">KNOWLEDGE BASE</span>
+            <h1 class="archive-h1">{{ page.title }}</h1>
+            {% if page.intro %}
+            <div class="archive-desc">{{ page.intro|richtext }}</div>
+            {% else %}
+            <p class="archive-desc">Browse in-depth guides, code walkthroughs, and architecture designs.</p>
+            {% endif %}
+        </div>
+
+        {# Category Filter Pills #}
+        {% if categories %}
+        <div class="archive-cat-filter-pills">
+            <a href="{% pageurl page %}" class="cat-filter-pill {% if not selected_category and not selected_tag %}active{% endif %}">
+                All Topics ({{ paginator.count }})
+            </a>
+            {% for cat in categories %}
+            <a href="?category={{ cat.slug }}{% if search_query %}&q={{ search_query }}{% endif %}" class="cat-filter-pill {% if selected_category and selected_category.slug == cat.slug %}active{% endif %}">
+                {{ cat.name }} ({{ cat.blog_posts.live.count }})
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {# Active Filter Bar #}
+    {% if selected_category or selected_tag or search_query %}
+    <div class="active-filter-banner">
+        <div class="active-filter-text">
+            Filtering by:
+            {% if selected_category %}<strong>Category: {{ selected_category.name }}</strong>{% endif %}
+            {% if selected_tag %}<strong>Tag: #{{ selected_tag }}</strong>{% endif %}
+            {% if search_query %}<strong>Query: "{{ search_query }}"</strong>{% endif %}
+            <span class="active-filter-count">({{ posts.paginator.count }} match{{ posts.paginator.count|pluralize:"es" }})</span>
+        </div>
+        <a href="{% pageurl page %}" class="btn-clear-filter">Reset Filter &times;</a>
+    </div>
+    {% endif %}
+
+    {# 2-Column Feed + Sidebar #}
+    <div class="feed-layout-grid">
+        <div class="feed-main-col">
+            {% if posts %}
+            <div class="pub-articles-list">
+                {% for post in posts %}
+                <article class="pub-article-row">
+                    {% if post.header_image %}
+                    <div class="article-row-image">
+                        <a href="{% pageurl post %}" tabindex="-1">
+                            {% image post.header_image fill-320x200 as row_img %}
+                            <img src="{{ row_img.url }}" width="{{ row_img.width }}" height="{{ row_img.height }}" alt="{{ post.title }}" class="row-thumb" loading="lazy">
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="article-row-body">
+                        <div class="article-row-meta">
+                            {% if post.category %}
+                            <a href="?category={{ post.category.slug }}" class="article-cat-pill">
+                                {{ post.category.name }}
+                            </a>
+                            {% endif %}
+                            <span class="meta-separator">&bull;</span>
+                            <time datetime="{{ post.date|date:'Y-m-d' }}" class="meta-date">{{ post.date|date:"M d, Y" }}</time>
+                            <span class="meta-separator">&bull;</span>
+                            <span class="meta-read-time">{{ post.reading_time }} min read</span>
+                        </div>
+
+                        <h2 class="article-row-title">
+                            <a href="{% pageurl post %}">{{ post.title }}</a>
+                        </h2>
+
+                        <p class="article-row-excerpt">{{ post.intro|truncatechars:180 }}</p>
+
+                        <div class="article-row-footer">
+                            <span class="author-byline">by <strong>{{ post.display_author }}</strong></span>
+                            <a href="{% pageurl post %}" class="row-read-link">
+                                Read Article &rarr;
+                            </a>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            {# Pagination #}
+            {% if posts.has_other_pages %}
+            <nav class="pub-pagination-bar" aria-label="Pagination">
+                <div class="pagination-info-text">
+                    Page {{ posts.number }} of {{ posts.paginator.num_pages }}
+                </div>
+
+                <div class="pagination-buttons">
+                    {% if posts.has_previous %}
+                    <a href="?page={{ posts.previous_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn-pub-sm btn-pub-outline">
+                        &larr; Previous
+                    </a>
+                    {% endif %}
+
+                    <div class="pagination-num-group">
+                        {% for num in posts.paginator.page_range %}
+                            {% if posts.number == num %}
+                            <span class="page-num-box active">{{ num }}</span>
+                            {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                            <a href="?page={{ num }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="page-num-box">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if posts.has_next %}
+                    <a href="?page={{ posts.next_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if selected_tag %}&tag={{ selected_tag }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="btn-pub-sm btn-pub-outline">
+                        Next &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="pub-empty-card">
+                <h3>No articles found</h3>
+                <p>No tutorials matched your active filter or search query.</p>
+                <a href="{% pageurl page %}" class="btn-pub-primary btn-sm">Clear Filters</a>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Sidebar Column #}
+        <aside class="feed-sidebar-col">
+            {% include 'includes/sidebar.html' %}
+        </aside>
+    </div>
+</div>
+{% endblock %}
